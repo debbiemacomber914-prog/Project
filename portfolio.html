@@ -1,0 +1,762 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex Chen | Growth Strategist for Film, Books & Brands</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0a0a0a;
+            --accent: #c9a962;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Cinematic grain overlay */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* 3D Canvas Container */
+        #hero-canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        /* Scroll animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Magnetic button effect */
+        .magnetic-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .magnetic-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+
+        .magnetic-btn:hover::before {
+            left: 0;
+        }
+
+        .magnetic-btn:hover {
+            color: var(--primary);
+        }
+
+        /* Case study cards */
+        .case-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        .case-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .case-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .case-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(201, 169, 98, 0.3);
+        }
+
+        /* Service pricing cards */
+        .service-card {
+            position: relative;
+            padding: 2.5rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.4s ease;
+        }
+
+        .service-card:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--accent);
+        }
+
+        .service-card.featured {
+            border-color: var(--accent);
+            background: rgba(201, 169, 98, 0.05);
+        }
+
+        /* Navigation */
+        .nav-link {
+            position: relative;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Text reveal animation */
+        .text-reveal {
+            overflow: hidden;
+        }
+
+        .text-reveal span {
+            display: inline-block;
+            transform: translateY(100%);
+            animation: reveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes reveal {
+            to { transform: translateY(0); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        /* Availability badge */
+        .availability {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(201, 169, 98, 0.1);
+            border: 1px solid rgba(201, 169, 98, 0.3);
+            font-size: 0.875rem;
+        }
+
+        .availability-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Film grain overlay -->
+    <div class="grain"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center backdrop-blur-md bg-black/20">
+        <div class="text-xl font-display font-semibold tracking-tight" style="color: var(--accent);">
+            AC.
+        </div>
+        <div class="hidden md:flex gap-8">
+            <a href="#work" class="nav-link text-sm uppercase tracking-widest">Work</a>
+            <a href="#services" class="nav-link text-sm uppercase tracking-widest">Services</a>
+            <a href="#about" class="nav-link text-sm uppercase tracking-widest">About</a>
+            <a href="#contact" class="nav-link text-sm uppercase tracking-widest">Contact</a>
+        </div>
+        <button class="md:hidden" style="color: var(--accent);">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </nav>
+
+    <!-- Section 1: Cinematic Homepage -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- 3D Canvas Background -->
+        <canvas id="hero-canvas"></canvas>
+
+        <div class="relative z-10 text-center px-8 max-w-5xl mx-auto">
+            <div class="availability mb-8 reveal">
+                <span class="availability-dot"></span>
+                <span>Accepting 2 projects for Q3 2025</span>
+            </div>
+
+            <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-medium leading-tight mb-6 reveal" style="animation-delay: 0.2s;">
+                <span class="text-reveal"><span>I engineer growth</span></span><br>
+                <span class="text-reveal"><span style="color: var(--accent);">for films, books & brands</span></span>
+            </h1>
+
+            <p class="text-lg md:text-xl mb-12 max-w-2xl mx-auto reveal" style="color: var(--text-secondary); animation-delay: 0.4s;">
+                Strategy × Storytelling × Scalable Systems. I don't just market projects—I build the architecture that makes them inevitable.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center reveal" style="animation-delay: 0.6s;">
+                <a href="#work" class="magnetic-btn">
+                    <span>See the strategy</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+                <a href="#contact" class="magnetic-btn" style="border-color: rgba(255,255,255,0.2); color: var(--text-primary);">
+                    <span>Book a call</span>
+                </a>
+            </div>
+
+            <div class="mt-16 flex justify-center gap-12 reveal" style="animation-delay: 0.8s;">
+                <div class="text-center">
+                    <div class="text-3xl font-display" style="color: var(--accent);">12+</div>
+                    <div class="text-xs uppercase tracking-widest mt-1" style="color: var(--text-secondary);">Projects</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-display" style="color: var(--accent);">$2M+</div>
+                    <div class="text-xs uppercase tracking-widest mt-1" style="color: var(--text-secondary);">Revenue Generated</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-display" style="color: var(--accent);">3</div>
+                    <div class="text-xs uppercase tracking-widest mt-1" style="color: var(--text-secondary);">Industries</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i data-lucide="chevron-down" class="w-6 h-6" style="color: var(--accent);"></i>
+        </div>
+    </section>
+
+    <!-- Section 2: Selected Projects (Case Studies) -->
+    <section id="work" class="py-32 px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-20 reveal">
+                <h2 class="font-display text-4xl md:text-5xl mb-4">Selected Projects</h2>
+                <p class="text-lg max-w-2xl" style="color: var(--text-secondary);">
+                    Three transformations. Three strategies. Proof that the right architecture creates inevitable outcomes.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Case Study 1: Film -->
+                <div class="case-card rounded-lg p-8 reveal">
+                    <div class="mb-6">
+                        <span class="text-xs uppercase tracking-widest px-3 py-1 rounded-full border" style="border-color: var(--accent); color: var(--accent);">Film</span>
+                    </div>
+                    <h3 class="font-display text-2xl mb-4">The Silent Threshold</h3>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--text-secondary);">Problem</p>
+                            <p class="text-sm">Indie psychological thriller with $0 marketing budget needed 50,000 opening weekend to secure distribution.</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--accent);">Strategy</p>
+                            <p class="text-sm">Micro-audience segmentation, festival-to-digital pipeline, and "mystery marketing" narrative architecture.</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: #22c55e;">Result</p>
+                            <p class="text-sm font-medium">78,000 opening weekend | Theatrical + streaming distribution secured</p>
+                        </div>
+                    </div>
+                    <a href="#" class="inline-flex items-center gap-2 text-sm" style="color: var(--accent);">
+                        View case study <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Case Study 2: Publishing -->
+                <div class="case-card rounded-lg p-8 reveal" style="animation-delay: 0.2s;">
+                    <div class="mb-6">
+                        <span class="text-xs uppercase tracking-widest px-3 py-1 rounded-full border" style="border-color: var(--accent); color: var(--accent);">Publishing</span>
+                    </div>
+                    <h3 class="font-display text-2xl mb-4">The Cartographer's Lie</h3>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--text-secondary);">Problem</p>
+                            <p class="text-sm">Debut literary fiction author with zero platform, manuscript complete but no market entry strategy.</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--accent);">Strategy</p>
+                            <p class="text-sm">Author brand architecture, content ecosystem, and pre-launch community cultivation.</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: #22c55e;">Result</p>
+                            <p class="text-sm font-medium">42,000 pre-orders | Major publisher bidding war | 6-figure advance</p>
+                        </div>
+                    </div>
+                    <a href="#" class="inline-flex items-center gap-2 text-sm" style="color: var(--accent);">
+                        View case study <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Case Study 3: Brand -->
+                <div class="case-card rounded-lg p-8 reveal" style="animation-delay: 0.4s;">
+                    <div class="mb-6">
+                        <span class="text-xs uppercase tracking-widest px-3 py-1 rounded-full border" style="border-color: var(--accent); color: var(--accent);">Brand</span>
+                    </div>
+                    <h3 class="font-display text-2xl mb-4">Maison Vérité</h3>
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--text-secondary);">Problem</p>
+                            <p class="text-sm">Heritage luxury brand with declining engagement among 25-40 demographic, perceived as "dated."</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--accent);">Strategy</p>
+                            <p class="text-sm">Cultural repositioning, community-driven campaigns, and "modern heritage" narrative engineering.</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest mb-1" style="color: #22c55e;">Result</p>
+                            <p class="text-sm font-medium">340% engagement increase | 2.3x revenue | Cultural cachet restored</p>
+                        </div>
+                    </div>
+                    <a href="#" class="inline-flex items-center gap-2 text-sm" style="color: var(--accent);">
+                        View case study <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Services (Revenue Menu) -->
+    <section id="services" class="py-32 px-8" style="background: rgba(255,255,255,0.01);">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20 reveal">
+                <h2 class="font-display text-4xl md:text-5xl mb-4">Services</h2>
+                <p class="text-lg max-w-2xl mx-auto" style="color: var(--text-secondary);">
+                    Outcome-based engagements. Every project includes strategy, execution architecture, and growth systems.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Service 1: Film -->
+                <div class="service-card rounded-lg reveal">
+                    <div class="mb-6">
+                        <i data-lucide="film" class="w-10 h-10" style="color: var(--accent);"></i>
+                    </div>
+                    <h3 class="font-display text-2xl mb-2">Film Launch Strategy</h3>
+                    <p class="text-sm mb-6" style="color: var(--text-secondary);">From festival circuit to audience acquisition</p>
+
+                    <ul class="space-y-3 mb-8 text-sm">
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Audience segmentation & targeting</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Festival-to-distribution pipeline</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Marketing narrative architecture</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Press & influencer strategy</span>
+                        </li>
+                    </ul>
+
+                    <div class="pt-6 border-t" style="border-color: rgba(255,255,255,0.1);">
+                        <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--text-secondary);">Starting at</p>
+                        <p class="text-2xl font-display" style="color: var(--accent);">$15,000</p>
+                        <p class="text-xs mt-1" style="color: var(--text-secondary);">8-12 week timeline</p>
+                    </div>
+                </div>
+
+                <!-- Service 2: Publishing (Featured) -->
+                <div class="service-card featured rounded-lg reveal" style="animation-delay: 0.2s;">
+                    <div class="absolute top-4 right-4">
+                        <span class="text-xs uppercase tracking-widest px-3 py-1 rounded-full" style="background: var(--accent); color: var(--primary);">Most Popular</span>
+                    </div>
+                    <div class="mb-6">
+                        <i data-lucide="book-open" class="w-10 h-10" style="color: var(--accent);"></i>
+                    </div>
+                    <h3 class="font-display text-2xl mb-2">Author Platform Building</h3>
+                    <p class="text-sm mb-6" style="color: var(--text-secondary);">From manuscript to market-ready brand</p>
+
+                    <ul class="space-y-3 mb-8 text-sm">
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Author brand architecture</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Content ecosystem design</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Pre-launch community cultivation</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Publisher pitch optimization</span>
+                        </li>
+                    </ul>
+
+                    <div class="pt-6 border-t" style="border-color: rgba(255,255,255,0.1);">
+                        <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--text-secondary);">Starting at</p>
+                        <p class="text-2xl font-display" style="color: var(--accent);">$12,000</p>
+                        <p class="text-xs mt-1" style="color: var(--text-secondary);">6-10 week timeline</p>
+                    </div>
+                </div>
+
+                <!-- Service 3: Brand -->
+                <div class="service-card rounded-lg reveal" style="animation-delay: 0.4s;">
+                    <div class="mb-6">
+                        <i data-lucide="sparkles" class="w-10 h-10" style="color: var(--accent);"></i>
+                    </div>
+                    <h3 class="font-display text-2xl mb-2">Brand Resonance Systems</h3>
+                    <p class="text-sm mb-6" style="color: var(--text-secondary);">From product to cultural presence</p>
+
+                    <ul class="space-y-3 mb-8 text-sm">
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Cultural repositioning strategy</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Community-driven campaign design</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Narrative engineering & messaging</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="check" class="w-4 h-4" style="color: var(--accent);"></i>
+                            <span>Growth system architecture</span>
+                        </li>
+                    </ul>
+
+                    <div class="pt-6 border-t" style="border-color: rgba(255,255,255,0.1);">
+                        <p class="text-xs uppercase tracking-widest mb-1" style="color: var(--text-secondary);">Custom Scope</p>
+                        <p class="text-2xl font-display" style="color: var(--accent);">$20,000+</p>
+                        <p class="text-xs mt-1" style="color: var(--text-secondary);">12-16 week timeline</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12 reveal">
+                <p class="text-sm" style="color: var(--text-secondary);">
+                    All engagements include weekly strategy calls, detailed documentation, and 30-day post-launch support.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: About (Authority Positioning) -->
+    <section id="about" class="py-32 px-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="reveal">
+                    <div class="aspect-[4/5] rounded-lg overflow-hidden relative">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80" 
+                             alt="Alex Chen - Growth Strategist" 
+                             class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700">
+                        <div class="absolute bottom-6 left-6 z-20">
+                            <p class="font-display text-xl">Alex Chen</p>
+                            <p class="text-sm" style="color: var(--text-secondary);">Growth Strategist</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal" style="animation-delay: 0.2s;">
+                    <h2 class="font-display text-4xl md:text-5xl mb-6">Strategy at the intersection of culture and commerce</h2>
+
+                    <div class="space-y-4 text-lg" style="color: var(--text-secondary);">
+                        <p>
+                            I work with film studios, publishers, and heritage brands to engineer growth systems that don't just capture attention—they create inevitability.
+                        </p>
+                        <p>
+                            My approach combines <span style="color: var(--accent);">market psychology</span>, <span style="color: var(--accent);">cultural storytelling</span>, and <span style="color: var(--accent);">scalable systems architecture</span>. The result: projects that find their audience and build momentum that compounds.
+                        </p>
+                        <p>
+                            Previously led growth at A24 (digital), advised Penguin Random House on author platform strategy, and repositioned three heritage luxury brands for Gen Z relevance.
+                        </p>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t" style="border-color: rgba(255,255,255,0.1);">
+                        <p class="text-xs uppercase tracking-widest mb-4" style="color: var(--text-secondary);">Featured In</p>
+                        <div class="flex flex-wrap gap-4 text-sm">
+                            <span class="px-3 py-1 rounded-full border" style="border-color: rgba(255,255,255,0.2);">The Hollywood Reporter</span>
+                            <span class="px-3 py-1 rounded-full border" style="border-color: rgba(255,255,255,0.2);">Publishers Weekly</span>
+                            <span class="px-3 py-1 rounded-full border" style="border-color: rgba(255,255,255,0.2);">Business of Fashion</span>
+                            <span class="px-3 py-1 rounded-full border" style="border-color: rgba(255,255,255,0.2);">Sundance Institute</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Contact (Opportunity Gateway) -->
+    <section id="contact" class="py-32 px-8" style="background: linear-gradient(to bottom, transparent, rgba(201, 169, 98, 0.05));">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="reveal">
+                <h2 class="font-display text-5xl md:text-6xl mb-6">Let's build your next breakthrough</h2>
+                <p class="text-xl mb-8" style="color: var(--text-secondary);">
+                    I take on 3-4 strategic projects per quarter. Current availability: <span style="color: var(--accent);">Q3 2025</span>
+                </p>
+
+                <div class="availability inline-flex mb-12">
+                    <span class="availability-dot"></span>
+                    <span>2 slots remaining for Q3 2025</span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto reveal" style="animation-delay: 0.2s;">
+                <a href="#" class="magnetic-btn justify-center text-lg py-4">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    <span>Book a 20-min strategy call</span>
+                </a>
+                <a href="#" class="magnetic-btn justify-center text-lg py-4" style="border-color: rgba(255,255,255,0.2); color: var(--text-primary);">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span>Start with a project brief</span>
+                </a>
+            </div>
+
+            <div class="mt-16 pt-8 border-t reveal" style="border-color: rgba(255,255,255,0.1); animation-delay: 0.4s;">
+                <p class="text-sm mb-4" style="color: var(--text-secondary);">Or reach directly</p>
+                <a href="mailto:hello@alexchen.co" class="text-lg hover:text-white transition-colors" style="color: var(--accent);">
+                    hello@alexchen.co
+                </a>
+                <div class="flex justify-center gap-6 mt-6">
+                    <a href="#" class="hover:text-white transition-colors" style="color: var(--text-secondary);">
+                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="hover:text-white transition-colors" style="color: var(--text-secondary);">
+                        <i data-lucide="twitter" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="hover:text-white transition-colors" style="color: var(--text-secondary);">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-8 text-center text-sm" style="color: var(--text-secondary);">
+        <p>© 2025 Alex Chen. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // 3D Canvas Animation (Cinematic Abstract Form)
+        const canvas = document.getElementById('hero-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = 600;
+            canvas.height = 600;
+        }
+        resizeCanvas();
+
+        // 3D rotating elements
+        let rotation = 0;
+        let mouseX = 0;
+        let mouseY = 0;
+
+        // Track mouse for subtle interaction
+        document.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = (e.clientX - rect.left - 300) / 300;
+            mouseY = (e.clientY - rect.top - 300) / 300;
+        });
+
+        function draw3D() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = 300;
+            const centerY = 300;
+
+            // Multiple rotating rings (cinematic feel)
+            const rings = [
+                { radius: 120, speed: 0.008, tilt: 0.3, color: '#c9a962', width: 2 },
+                { radius: 160, speed: -0.005, tilt: 0.5, color: '#c9a962', width: 1.5 },
+                { radius: 200, speed: 0.003, tilt: 0.2, color: 'rgba(201, 169, 98, 0.5)', width: 1 },
+                { radius: 80, speed: 0.012, tilt: 0.7, color: 'rgba(201, 169, 98, 0.3)', width: 1 }
+            ];
+
+            rings.forEach((ring, i) => {
+                ctx.beginPath();
+                ctx.strokeStyle = ring.color;
+                ctx.lineWidth = ring.width;
+
+                for (let angle = 0; angle < Math.PI * 2; angle += 0.02) {
+                    const tiltedAngle = angle + rotation * ring.speed + (i * Math.PI / 2);
+
+                    // 3D projection with tilt
+                    const x = Math.cos(tiltedAngle) * ring.radius;
+                    const y = Math.sin(tiltedAngle) * ring.radius * Math.cos(ring.tilt);
+                    const z = Math.sin(tiltedAngle) * ring.radius * Math.sin(ring.tilt);
+
+                    // Mouse interaction (subtle parallax)
+                    const parallaxX = mouseX * 20 * (i + 1);
+                    const parallaxY = mouseY * 20 * (i + 1);
+
+                    // Perspective projection
+                    const scale = 1 + z / 400;
+                    const projX = centerX + x * scale + parallaxX;
+                    const projY = centerY + y * scale + parallaxY;
+
+                    if (angle === 0) {
+                        ctx.moveTo(projX, projY);
+                    } else {
+                        ctx.lineTo(projX, projY);
+                    }
+                }
+
+                ctx.closePath();
+                ctx.stroke();
+
+                // Add glow effect
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = ring.color;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            });
+
+            // Central element (abstract "core")
+            ctx.beginPath();
+            ctx.arc(centerX + mouseX * 10, centerY + mouseY * 10, 15, 0, Math.PI * 2);
+            ctx.fillStyle = '#c9a962';
+            ctx.fill();
+
+            rotation += 1;
+            requestAnimationFrame(draw3D);
+        }
+
+        draw3D();
+
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Magnetic button effect
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+
+                btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0, 0)';
+            });
+        });
+    </script>
+</body>
+</html>
